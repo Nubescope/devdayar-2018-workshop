@@ -1,13 +1,14 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react'
+import { StyleSheet, Text, View, Image } from 'react-native'
 
 export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
+        <Image source={require('./assets/logo-dev-day.png')} style={styles.logo} />
+        <Text style={styles.text}>2018</Text>
       </View>
-    );
+    )
   }
 }
 
@@ -18,4 +19,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+
+  logo: {
+    transform: [{ scale: 0.8 }],
+  },
+
+  text: {
+    color: '#242352',
+    fontSize: 45,
+    fontWeight: '400',
+  },
+})
