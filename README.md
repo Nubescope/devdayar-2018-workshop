@@ -27,6 +27,7 @@ Implementar un _floating heart_ para lograr el resultado que vemos [aquí](https
 - **No hace falta definir un `AnimatedValue` por cada elemento animado**: podemos _conectar_ más de un estilo al mismo valor y luego _ejecutar_ una misma animación.
 - **Es muy útil usar el método `interpolate` de `AnimatedValue`** para conectar distintos estilos a un mismo valor.
 - **La propiedad de estilo `transform` recibe un array**: y esto no es casual, ya que **el orden de las transformaciones importa**. No es lo mismo `transform: [{ rotate: '90deg' }, { translateX: 100 }]` que `transform: [{ translateX: 100 }, { rotate: '90deg' }]`.
+- **Simplificar las animaciones haciendo que `AnimatedValue` vaya de 0 a 1** y luego interpolar ese valor para cada estilo que querramos.
 
 ## Errores comunes
 

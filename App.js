@@ -1,12 +1,29 @@
 import React from 'react'
-import { StyleSheet, Text, View, Image } from 'react-native'
+import { StyleSheet, Text, View, Image, Animated } from 'react-native'
 
 export default class App extends React.Component {
+  constructor() {
+    super()
+    this.animation = new Animated.Value(0)
+  }
+
+  componentDidMount() {
+    Animated.spring(this.animation, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start()
+  }
+
   render() {
+    const imageTranslateX = this.animation.interpolate({ inputRange: [0, 1], outputRange: [400, 0] })
+    const imageStyle = {
+      transform: [{ translateX: imageTranslateX }],
+    }
+
     return (
       <View style={styles.container}>
-        <Image source={require('./assets/logo-dev-day.png')} style={styles.logo} />
-        <Text style={styles.text}>2018</Text>
+        <Animated.Image source={require('./assets/logo-dev-day.png')} style={[styles.logo, imageStyle]} />
       </View>
     )
   }
