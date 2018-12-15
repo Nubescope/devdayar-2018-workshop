@@ -9,7 +9,7 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    Animated.parallel([
+    Animated.sequence([
       Animated.spring(this.animationFirstStep, {
         toValue: 1,
         useNativeDriver: true,
@@ -17,7 +17,6 @@ export default class App extends React.Component {
       Animated.timing(this.animationSecondStep, {
         toValue: 1,
         duration: 400,
-        delay: 200,
         useNativeDriver: true,
       }),
     ]).start()
@@ -25,12 +24,13 @@ export default class App extends React.Component {
 
   render() {
     const imageTranslateX = this.animationFirstStep.interpolate({ inputRange: [0, 1], outputRange: [400, 0] })
+    const imageTranslateY = this.animationSecondStep.interpolate({ inputRange: [0, 1], outputRange: [60, 0] })
     const imageStyle = {
-      transform: [{ translateX: imageTranslateX }],
+      transform: [{ translateX: imageTranslateX }, { translateY: imageTranslateY }],
     }
 
-    const textOpacity = this.animationSecondStep
-    const textScale = this.animationSecondStep.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] })
+    const textOpacity = this.animationSecondStep.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0, 1] })
+    const textScale = this.animationSecondStep.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] })
     const textStyle = {
       opacity: textOpacity,
       transform: [{ scale: textScale }],
@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
     color: '#242352',
     fontSize: 45,
     fontWeight: '400',
-    opacity: 1,
+    marginTop: 10,
   },
 })
