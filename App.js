@@ -1,47 +1,90 @@
 import React from 'react'
-import { StyleSheet, Text, View, Image, Animated } from 'react-native'
+import { StyleSheet, Text, View, Image, Animated, ScrollView } from 'react-native'
+import Speaker from './Speaker'
+
+import speakers from './data.json'
+
+const scrollViewTopOffset = 370
 
 export default class App extends React.Component {
   constructor() {
     super()
+    this.state = { scrollEnabled: false }
+
     this.animationFirstStep = new Animated.Value(0)
-    this.animationSecondStep = new Animated.Value(0)
+    this.scrollY = new Animated.Value(0)
+
+    // Primero interpolar del scroll a un valor que va de 0 a 1
+    this.scrollAnimation = this.scrollY.interpolate({
+      inputRange: [0, scrollViewTopOffset],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    })
+
+    // Definimos el translateX de la primera animación
+    const logoTranslateX = this.animationFirstStep.interpolate({
+      inputRange: [0, 1],
+      outputRange: [400, 0],
+    })
+
+    // Definimos las transformaciones de la animación por scroll
+    const logoTranslateY = this.scrollAnimation.interpolate({ inputRange: [0, 1], outputRange: [250, 0] })
+    const logoScale = this.scrollAnimation.interpolate({ inputRange: [0, 0.7, 1], outputRange: [1, 1, 0.7] })
+    const logoTranslateXByScroll = this.scrollAnimation.interpolate({
+      inputRange: [0, 0.7, 1],
+      outputRange: [0, 0, -100],
+    })
+
+    // Con el conjunto de todas las transformaciones definimos el estilo
+    this.logoStyle = {
+      transform: [
+        { translateX: logoTranslateX },
+        { translateY: logoTranslateY },
+        { scale: logoScale },
+        { translateX: logoTranslateXByScroll },
+      ],
+    }
+
+    this.scrollViewOpacity = this.animationFirstStep.interpolate({ inputRange: [0, 0.9, 1], outputRange: [0, 0, 1] })
   }
 
   componentDidMount() {
-    Animated.sequence([
-      Animated.spring(this.animationFirstStep, {
-        toValue: 1,
-        useNativeDriver: true,
-      }),
-      Animated.timing(this.animationSecondStep, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-    ]).start()
+    Animated.spring(this.animationFirstStep, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start(() => {
+      this.setState({ scrollEnabled: true })
+    })
   }
 
   render() {
-    const imageTranslateX = this.animationFirstStep.interpolate({ inputRange: [0, 1], outputRange: [400, 0] })
-    const imageTranslateY = this.animationSecondStep.interpolate({ inputRange: [0, 1], outputRange: [60, 0] })
-    const imageStyle = {
-      transform: [{ translateX: imageTranslateX }, { translateY: imageTranslateY }],
-    }
-
-    const textOpacity = this.animationSecondStep.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 0, 1] })
-    const textScale = this.animationSecondStep.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] })
-    const textStyle = {
-      opacity: textOpacity,
-      transform: [{ scale: textScale }],
-    }
-
     return (
       <View style={styles.container}>
-        <Animated.Image source={require('./assets/logo-dev-day.png')} style={[styles.logo, imageStyle]} />
-        <Animated.View style={textStyle}>
-          <Text style={styles.text}>2018</Text>
+        <Animated.View style={[styles.splashContainer, this.logoStyle]} pointerEvents="none">
+          <Image source={require('./assets/logo-dev-day.png')} style={[styles.logo]} />
         </Animated.View>
+
+        <Animated.ScrollView
+          scrollEnabled={this.state.scrollEnabled}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={1}
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: { contentOffset: { y: this.scrollY } },
+              },
+            ],
+            {
+              useNativeDriver: true,
+            }
+          )}
+          style={{ opacity: this.scrollViewOpacity }}
+        >
+          {speakers.map(speaker => (
+            <Speaker key={speaker.name} data={speaker} />
+          ))}
+        </Animated.ScrollView>
       </View>
     )
   }
@@ -51,18 +94,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
+  },
+
+  splashContainer: {
+    width: '100%',
+    backgroundColor: '#fff',
+    paddingTop: 20,
     justifyContent: 'center',
+    alignItems: 'center',
   },
 
-  logo: {
-    // transform: [{ scale: 0.8 }],
+  scrollView: {
+    flex: 1,
+    backgroundColor: 'blue',
+    width: '100%',
   },
 
-  text: {
-    color: '#242352',
-    fontSize: 45,
-    fontWeight: '400',
-    marginTop: 10,
+  contentContainer: {
+    width: '100%',
+    paddingVertical: scrollViewTopOffset,
   },
 })
